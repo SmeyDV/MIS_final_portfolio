@@ -1,0 +1,127 @@
+<div class="bg-indigo-500 p-4">
+  <div class="bg-gray-800 p-4">
+    <h2 class="text-white text-sm mb-2">Game Window</h2>
+    <div id="screen" class="bg-black h-48 flex items-center justify-center text-xl">
+      About page
+    </div>
+    <div id="text-typing-container" class="bg-black mt-2 p-2 text-white">
+      <!-- Interactive text typing component -->
+      <div id="output" class="mb-2 min-h-[60px] text-left text-sm">
+        <div class="text-green-400">Welcome! Type 'start' to begin...</div>
+      </div>
+      <div class="flex items-center">
+        <span class="text-green-400 mr-2">></span>
+        <input type="text" id="command-input"
+          class="bg-transparent border-none outline-none text-white flex-1 font-mono text-sm"
+          placeholder="Enter command..." autocomplete="off" />
+        <span id="cursor" class="text-white animate-pulse">_</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Wait a bit for the component to be fully loaded
+    setTimeout(function () {
+      const input = document.getElementById('command-input');
+      const output = document.getElementById('output');
+
+      if (!input || !output) return; // Elements not ready yet
+
+      let gameStarted = false;
+
+      function addToOutput(text, className = 'text-white') {
+        const div = document.createElement('div');
+        div.className = className + ' text-sm';
+        div.textContent = text;
+        output.appendChild(div);
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function typeWriter(text, className = 'text-white', callback = null) {
+        const div = document.createElement('div');
+        div.className = className + ' text-sm';
+        output.appendChild(div);
+
+        let i = 0;
+        function type() {
+          if (i < text.length) {
+            div.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, 50);
+          } else if (callback) {
+            callback();
+          }
+        }
+        type();
+        output.scrollTop = output.scrollHeight;
+      }
+
+      function handleStart() {
+        gameStarted = true;
+        addToOutput('> start', 'text-green-400');
+        typeWriter('Initializing portfolio system...', 'text-blue-400');
+
+        setTimeout(() => {
+          typeWriter('System ready.', 'text-green-400');
+          setTimeout(() => {
+            typeWriter('Available commands: about, projects, contact, help', 'text-yellow-400');
+          }, 1000);
+        }, 1500);
+      }
+
+      function handleCommand(command) {
+        addToOutput('> ' + command, 'text-green-400');
+
+        switch (command.toLowerCase()) {
+          case 'about':
+            typeWriter('Loading about section...', 'text-blue-400');
+            break;
+          case 'projects':
+            typeWriter('Displaying project portfolio...', 'text-blue-400');
+            break;
+          case 'contact':
+            typeWriter('Opening contact information...', 'text-blue-400');
+            break;
+          case 'help':
+            typeWriter('Available commands: about, projects, contact, help, clear', 'text-yellow-400');
+            break;
+          case 'clear':
+            output.innerHTML = '<div class="text-green-400 text-sm">Terminal cleared. Type "help" for commands.</div>';
+            break;
+          default:
+            typeWriter('Command not recognized. Type "help" for available commands.', 'text-red-400');
+        }
+      }
+
+      input.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          const command = input.value.trim();
+          if (command) {
+            if (!gameStarted && command.toLowerCase() === 'start') {
+              handleStart();
+            } else if (gameStarted) {
+              handleCommand(command);
+            } else {
+              addToOutput('> ' + command, 'text-green-400');
+              typeWriter('Please type "start" to begin.', 'text-red-400');
+            }
+            input.value = '';
+          }
+        }
+      });
+
+      // Focus input on click anywhere in the container
+      const container = document.getElementById('text-typing-container');
+      if (container) {
+        container.addEventListener('click', () => {
+          input.focus();
+        });
+      }
+
+      // Auto-focus on load
+      input.focus();
+    }, 500); // Wait 500ms for DOM to be ready
+  });
+</script>

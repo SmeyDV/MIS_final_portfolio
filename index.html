@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Wireframe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="h-full bg-gray-200 text-white font-mono">
+  <div id="app" class="h-full w-full"></div>
+
+  <script>
+    async function loadComponent(path) {
+      const res = await fetch(path);
+      return await res.text();
+    }
+
+    async function loadPage() {
+      const app = document.getElementById('app');
+
+      // Load layout
+      const layoutHTML = await loadComponent('components/layout.html');
+      app.innerHTML = layoutHTML;
+
+      // Inject header, footer, tabbar
+      document.getElementById('header').innerHTML = await loadComponent('components/header.html');
+      document.getElementById('tabbar').innerHTML = await loadComponent('components/tabbar.html');
+      document.getElementById('footer').innerHTML = await loadComponent('components/footer.html');
+
+      // Load text typing component
+      const textTypingArea = document.getElementById('text-typing-area');
+      if (textTypingArea) {
+        // Load the text typing HTML directly
+        const textTypingHTML = await loadComponent('components/text-typing.html');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(textTypingHTML, 'text/html');
+        const htmlContent = doc.querySelector('.text-typing-container');
+        if (htmlContent) {
+          textTypingArea.innerHTML = htmlContent.outerHTML;
+        } else {
+          // Fallback: create the basic structure
+          textTypingArea.innerHTML = `
+            <div class="text-typing-container">
+              <div id="output" class="mb-2 min-h-[100px] text-left">
+                <div class="text-green-400">Welcome! Type 'start' to begin...</div>
+              </div>
+              <div class="flex items-center">
+                <span class="text-green-400 mr-2">></span>
+                <input type="text" id="command-input" class="bg-transparent border-none outline-none text-white flex-1 font-mono" placeholder="Enter command..." autocomplete="off" />
+                <span id="cursor" class="text-white animate-pulse">_</span>
+              </div>
+            </div>
+          `;
+        }
+
+        // Initialize the interactive functionality directly
+        initializeTextTyping();
+      }
+
+      // Load default page
+      const main = document.getElementById('main');
+      if (main) {
+        main.innerHTML = '<div class="flex flex-col items-center justify-center h-full space-y-4"><h1 class="text-4xl font-bold">Welcome to My Portfolio</h1><p class="text-lg text-gray-300">Hi, I\'m Reaksmey Rin</p><p class="text-center text-gray-400">Use the terminal below to navigate</p></div>';
+      }
+    }
+
+    async function loadSection(name) {
+      const main = document.getElementById('main');
+      if (!main) return;
+
+      const html = await loadComponent(`components/pages/${name}.html`);
+      main.innerHTML = html;
+    }
+
+    function initializeTextTyping() {
+      setTimeout(() => {
+        const input = document.getElementById('command-input');
+        const output = document.getElementById('output');
+
+        if (!input || !output) {
+          console.log('Text typing elements not found');
+          return;
+        }
+
+        let gameStarted = false;
+
+        function addToOutput(text, className = 'text-white') {
+          const div = document.createElement('div');
+          div.className = className;
+          div.textContent = text;
+          output.appendChild(div);
+          output.scrollTop = output.scrollHeight;
+        }
+
+        function typeWriter(text, className = 'text-white', callback = null) {
+          const div = document.createElement('div');
+          div.className = className;
+          output.appendChild(div);
+
+          let i = 0;
+          function type() {
+            if (i < text.length) {
+              div.textContent += text.charAt(i);
+              i++;
+              setTimeout(type, 50);
+            } else if (callback) {
+              callback();
+            }
+          }
+          type();
+          output.scrollTop = output.scrollHeight;
+        }
+
+        function handleStart() {
+          gameStarted = true;
+          addToOutput('> start', 'text-green-400');
+          typeWriter('Initializing portfolio system...', 'text-blue-400');
+
+          setTimeout(() => {
+            typeWriter('System ready.', 'text-green-400');
+            setTimeout(() => {
+              typeWriter('Available commands: about, projects', 'text-yellow-400');
+            }, 1000);
+          }, 1500);
+        }
+
+        function handleCommand(command) {
+          addToOutput('> ' + command, 'text-green-400');
+
+          switch (command.toLowerCase()) {
+            case 'about':
+              typeWriter('Loading about section...', 'text-blue-400');
+              setTimeout(() => {
+                loadSection('about');
+                typeWriter('About section loaded.', 'text-green-400');
+              }, 1000);
+              break;
+            case 'projects':
+              typeWriter('Loading projects portfolio...', 'text-blue-400');
+              setTimeout(() => {
+                loadSection('case');
+                typeWriter('Projects portfolio loaded.', 'text-green-400');
+              }, 1000);
+              break;
+            case 'clear':
+              output.innerHTML = '<div class="text-green-400">Terminal cleared. Available commands: about, projects</div>';
+              break;
+            default:
+              typeWriter('Command not recognized. Available commands: about, projects, clear', 'text-red-400');
+          }
+        }
+
+        input.addEventListener('keypress', function (e) {
+          if (e.key === 'Enter') {
+            const command = input.value.trim();
+            if (command) {
+              if (!gameStarted && command.toLowerCase() === 'start') {
+                handleStart();
+              } else if (gameStarted) {
+                handleCommand(command);
+              } else {
+                addToOutput('> ' + command, 'text-green-400');
+                typeWriter('Please type "start" to begin.', 'text-red-400');
+              }
+              input.value = '';
+            }
+          }
+        });
+
+        // Focus input on click anywhere in the container
+        const container = input.closest('.text-typing-container');
+        if (container) {
+          container.addEventListener('click', () => {
+            input.focus();
+          });
+        }
+
+        // Auto-focus on load
+        input.focus();
+        console.log('Text typing initialized successfully');
+      }, 200);
+    }
+
+    loadPage();
+  </script>
+</body>
+
+</html>
