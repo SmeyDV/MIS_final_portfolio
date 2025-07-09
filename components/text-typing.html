@@ -4,30 +4,35 @@
   </div>
   <div class="flex items-center">
     <span class="text-green-400 mr-2">></span>
-    <input type="text" id="command-input" class="bg-transparent border-none outline-none text-white flex-1 font-mono"
-      placeholder="Enter command..." autocomplete="off" />
+    <input
+      type="text"
+      id="command-input"
+      class="bg-transparent border-none outline-none text-white flex-1 font-mono"
+      placeholder="Enter command..."
+      autocomplete="off"
+    />
     <span id="cursor" class="text-white animate-pulse">_</span>
   </div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const input = document.getElementById('command-input');
-    const output = document.getElementById('output');
-    const cursor = document.getElementById('cursor');
+  document.addEventListener("DOMContentLoaded", function () {
+    const input = document.getElementById("command-input");
+    const output = document.getElementById("output");
+    const cursor = document.getElementById("cursor");
 
     let gameStarted = false;
 
-    function addToOutput(text, className = 'text-white') {
-      const div = document.createElement('div');
+    function addToOutput(text, className = "text-white") {
+      const div = document.createElement("div");
       div.className = className;
       div.textContent = text;
       output.appendChild(div);
       output.scrollTop = output.scrollHeight;
     }
 
-    function typeWriter(text, className = 'text-white', callback = null) {
-      const div = document.createElement('div');
+    function typeWriter(text, className = "text-white", callback = null) {
+      const div = document.createElement("div");
       div.className = className;
       output.appendChild(div);
 
@@ -47,60 +52,81 @@
 
     function handleStart() {
       gameStarted = true;
-      addToOutput('> start', 'text-green-400');
-      typeWriter('Initializing portfolio system...', 'text-blue-400');
+      addToOutput("> start", "text-green-400");
+      typeWriter("Initializing portfolio system...", "text-blue-400");
 
       setTimeout(() => {
-        typeWriter('System ready.', 'text-green-400');
+        typeWriter("System ready.", "text-green-400");
         setTimeout(() => {
-          typeWriter('Available commands: about, projects, contact, help', 'text-yellow-400');
+          typeWriter(
+            "Available commands: about, projects, contact, help",
+            "text-yellow-400"
+          );
         }, 1000);
       }, 1500);
     }
 
     function handleCommand(command) {
-      addToOutput('> ' + command, 'text-green-400');
+      addToOutput("> " + command, "text-green-400");
 
       switch (command.toLowerCase()) {
-        case 'about':
-          typeWriter('Loading about section...', 'text-blue-400');
+        case "about":
+          typeWriter("Loading about section...", "text-blue-400");
           break;
-        case 'projects':
-          typeWriter('Displaying project portfolio...', 'text-blue-400');
+        case "projects":
+          typeWriter("Displaying project portfolio...", "text-blue-400");
           break;
-        case 'contact':
-          typeWriter('Opening contact information...', 'text-blue-400');
+        case "contact":
+          typeWriter("Opening contact information...", "text-blue-400");
           break;
-        case 'help':
-          typeWriter('Available commands: about, projects, contact, help, clear', 'text-yellow-400');
+        case "blog":
+          typeWriter(
+            "Redirecting to blog page...",
+            "text-blue-400",
+            function () {
+              setTimeout(function () {
+                window.location.href = "blog.html";
+              }, 700);
+            }
+          );
           break;
-        case 'clear':
-          output.innerHTML = '<div class="text-green-400">Terminal cleared.</div>';
+        case "help":
+          typeWriter(
+            "Available commands: about, projects, contact, blog, help, clear",
+            "text-yellow-400"
+          );
+          break;
+        case "clear":
+          output.innerHTML =
+            '<div class="text-green-400">Terminal cleared.</div>';
           break;
         default:
-          typeWriter('Command not recognized. Type "help" for available commands.', 'text-red-400');
+          typeWriter(
+            'Command not recognized. Type "help" for available commands.',
+            "text-red-400"
+          );
       }
     }
 
-    input.addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') {
+    input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
         const command = input.value.trim();
         if (command) {
-          if (!gameStarted && command.toLowerCase() === 'start') {
+          if (!gameStarted && command.toLowerCase() === "start") {
             handleStart();
           } else if (gameStarted) {
             handleCommand(command);
           } else {
-            addToOutput('> ' + command, 'text-green-400');
-            typeWriter('Please type "start" to begin.', 'text-red-400');
+            addToOutput("> " + command, "text-green-400");
+            typeWriter('Please type "start" to begin.', "text-red-400");
           }
-          input.value = '';
+          input.value = "";
         }
       }
     });
 
     // Focus input on click
-    document.addEventListener('click', () => {
+    document.addEventListener("click", () => {
       input.focus();
     });
 
